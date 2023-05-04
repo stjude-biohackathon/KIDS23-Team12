@@ -7,3 +7,6 @@ dockerpush:
 
 dockerpull:
 		docker pull benlansdell/hub-napari-xpra:latest
+
+dockerstop:
+		docker stop $(docker ps -a -q)

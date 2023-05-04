@@ -1,0 +1,3 @@
+[submodule "jupyter_app_launcher"]
+	path = jupyter_app_launcher
+	url = git@github.com:benlansdell/jupyter_app_launcher.git

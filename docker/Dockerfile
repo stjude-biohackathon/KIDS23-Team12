@@ -1,6 +1,7 @@
 FROM ghcr.io/napari/napari-xpra AS napari-xpra
 
 RUN python3 -m pip install btrack cellpose
+RUN python3 -m pip install git+https://github.com/benlansdell/napari-ethome.git
 
 ENV DISPLAY=:100
 ENV XPRA_PORT=9876
