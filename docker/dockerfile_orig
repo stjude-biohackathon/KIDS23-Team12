@@ -1,6 +1,18 @@
-FROM ghcr.io/napari/napari-xpra AS napari-xpra
+FROM napari AS napari-xpra
 
-RUN python -m pip install btrack cellpose 
+# Install Xpra and dependencies
+RUN apt-get install -y wget gnupg2 apt-transport-https && \
+    wget -O - https://xpra.org/gpg.asc | apt-key add - && \
+    echo "deb https://xpra.org/ jammy main" > /etc/apt/sources.list.d/xpra.list
+
+RUN apt-get update && \
+    apt-get install -yqq \
+        xpra \
+        xvfb \
+        xterm \
+        sshfs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV DISPLAY=:100
 ENV XPRA_PORT=9876
