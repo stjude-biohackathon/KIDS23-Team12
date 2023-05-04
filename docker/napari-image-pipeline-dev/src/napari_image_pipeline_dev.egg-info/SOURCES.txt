@@ -1,0 +1,16 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.cfg
+src/napari_image_pipeline_dev/__init__.py
+src/napari_image_pipeline_dev/_widget.py
+src/napari_image_pipeline_dev/napari.yaml
+src/napari_image_pipeline_dev.egg-info/PKG-INFO
+src/napari_image_pipeline_dev.egg-info/SOURCES.txt
+src/napari_image_pipeline_dev.egg-info/dependency_links.txt
+src/napari_image_pipeline_dev.egg-info/entry_points.txt
+src/napari_image_pipeline_dev.egg-info/requires.txt
+src/napari_image_pipeline_dev.egg-info/top_level.txt
+src/napari_image_pipeline_dev/_tests/__init__.py
+src/napari_image_pipeline_dev/_tests/test_widget.py
