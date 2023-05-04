@@ -1,0 +1,11 @@
+- title: Napari
+  description: Virtual desktop with Napari
+  source: http://localhost:$PORT/
+  cwd: ./
+  type: local-server
+  args:
+    - /anaconda/bin/python
+    - /home/lead/hackathon_code/napari_xpra.py
+    - --port
+    - $PORT
+  catalog: Desktop apps
