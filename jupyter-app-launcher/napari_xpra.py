@@ -12,7 +12,10 @@ outfile = '/home/lead/log.txt'
 cmd = f'echo Attempting to launch docker. Time is {time.time()} >> {outfile}'
 os.system(cmd)
 
-cmd = f'docker run --rm -p {args.port}:{args.port} -e XPRA_PORT={args.port} -e XPRA_EXIT_WITH_CLIENT="no" -v /home/lead/notebooks/:/data/ ghcr.io/napari/napari-xpra'
+#Original docker image
+#cmd = f'docker run --rm -p {args.port}:{args.port} -e XPRA_PORT={args.port} -e XPRA_EXIT_WITH_CLIENT="no" -v /home/lead/notebooks/:/data/ ghcr.io/napari/napari-xpra'
+#Updated docker image
+cmd = f'docker run --rm -p {args.port}:{args.port} -e XPRA_PORT={args.port} -e XPRA_EXIT_WITH_CLIENT="no" -v /home/lead/notebooks/:/data/ benlansdell/hub-napari-xpra:latest'
 os.system(cmd)
 
 #DISPLAY=":100"
