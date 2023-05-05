@@ -1,0 +1,14 @@
+name: napari-image-pipeline-dev
+display_name: Image-Pipeline-Dev
+contributions:
+  commands:
+    - id: napari-image-pipeline-dev.make_qwidget
+      python_name: napari_image_pipeline_dev._widget:Trio
+      title: Make simple send and receive data from jupyter hub widget
+    
+  widgets:
+    - command: napari-image-pipeline-dev.make_qwidget
+      display_name: Trio
+
+    
+

@@ -1,7 +1,14 @@
 FROM ghcr.io/napari/napari-xpra AS napari-xpra
 
-RUN python3 -m pip install btrack cellpose
+RUN python3 -m pip install btrack cellpose zmq pillow openai regex 
 RUN python3 -m pip install git+https://github.com/benlansdell/napari-ethome.git
+
+COPY napari-image-pipeline-dev /napari-image-pipeline-dev
+RUN python3 -m pip install napari-accelerated-pixel-and-object-classification
+RUN python3 -m pip install -e napari-image-pipeline-dev
+
+COPY Napari_plugin_for_workflow_design /Napari_plugin_for_workflow_design
+RUN python3 -m pip install -e Napari_plugin_for_workflow_design
 
 ENV DISPLAY=:100
 ENV XPRA_PORT=9876

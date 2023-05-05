@@ -15,102 +15,10 @@ import pickle
 from PIL import Image
 import openai
 import re
+import threading
 
 if TYPE_CHECKING:
     import napari
-
-class Send_Receive(QWidget):
-    # your QWidget.__init__ can optionally request the napari viewer instance
-    # in one of two ways:
-    # 1. use a parameter called `napari_viewer`, as done here
-    # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer):
-        super().__init__()
-        self.viewer = napari_viewer
-
-        send_btn = QPushButton("Send data to Jupyter hub")
-        send_btn.clicked.connect(self._send)
-        
-        rec_btn = QPushButton("Receive data from Jupyter hub")
-        rec_btn.clicked.connect(self.receive_data)
-
-        self.setLayout(QVBoxLayout())
-        self.layout().addWidget(send_btn)
-        self.layout().addWidget(rec_btn)
-        
-        self.send_add_line_edt=QLineEdit()
-        self.rec_add_line_edt=QLineEdit()
-        
-        self.layout().addWidget(self.send_add_line_edt)
-        self.layout().addWidget(self.rec_add_line_edt)
-        
-        self.send_add="tcp://127.0.0.1:5001"
-        self.rec_add="tcp://127.0.0.1:5002"
-        
-    def receive_data(self):
-        #Runs on napari
-        import socket
-
-        #HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
-        #PORT = 7101        # Port to listen on (non-privileged ports are > 1023)
-
-        #Get host and port from string
-        HOSTPORT = self.rec_add_line_edt.text().split(':')
-        HOST = HOSTPORT[0]
-        PORT = int(HOSTPORT[1])
-
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            s.listen()
-            conn, addr = s.accept()
-            
-            with conn:
-                print('Connected by', addr)
-                while True:
-                    data = pickle.loads(conn.recv(int(1e6)))
-                    if data is not None:
-                        break
-                    #Now we have data, add this as an image.
-                    self.viewer.add_image(data)
-
-                    #conn.sendall(data)
-        
-    def init_send_port(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.PUB)
-        self.send_add=  "tcp://"+self.send_add_line_edt.text()
-        socket.bind(self.send_add)
-        return socket,context
-        
-    def init_rec_port(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.SUB)
-        self.rec_add= "tcp://"+self.rec_add_line_edt.text()
-        socket.connect(self.rec_add)
-        socket.setsockopt_string(zmq.SUBSCRIBE, "")
-        return socket,context
-
-    def _send(self):
-        print("Sending the last layer")
-        socket,context=self.init_send_port()
-        image = self.viewer.layers[0].data
-        print(image.shape)
-        serialized_image = pickle.dumps(image)
-        socket.send(serialized_image)
-        print("Sent")
-        socket.close()
-        context.term()
-        
-    def _receive(self):
-        print("Receiving from Jupyter hub")
-        socket,context=self.init_rec_port()
-        serialized_image = socket.recv()  
-        image = pickle.loads(serialized_image) 
-        print(image.shape)
-        self.viewer.add_image(image)
-        socket.close()
-        context.term()
-
 
 
 class Simple_Send_Receive(QWidget):
@@ -138,10 +46,37 @@ class Simple_Send_Receive(QWidget):
         self.layout().addWidget(self.send_add_line_edt)
         self.layout().addWidget(self.rec_add_line_edt)
         
+        
         self.send_add="tcp://127.0.0.1:5001"
         self.rec_add="tcp://127.0.0.1:5002"
         
         
+        
+        self.rec_socket,self.rec_context=self.init_rec_port_2()
+    
+        self.t1=threading.Thread(target=self.receive_continuously)
+        
+        self.image_sent_ack=0
+        self.image_sent_ack_received=0
+        self.t1.start()
+        
+    def receive_continuously(self):
+        flag=True
+        while flag:
+            flag=self.receive_from_jupyter()
+    
+    def receive_from_jupyter(self):
+        message = self.rec_socket.recv_string()
+        if message=="Image Received":
+            self.image_sent_ack+=1
+            
+    def is_image_sent(self):
+        if self.image_sent_ack>self.image_sent_ack_received:
+            image_sent_ack_received+=1
+            return True
+        return False
+            
+
     def init_send_port(self):
         context = zmq.Context()
         socket = context.socket(zmq.PUB)
@@ -156,6 +91,14 @@ class Simple_Send_Receive(QWidget):
         socket.connect(self.rec_add)
         socket.setsockopt_string(zmq.SUBSCRIBE, "")
         return socket,context
+    
+    def init_rec_port_2(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.SUB)
+        #self.rec_add= "tcp://"+self.rec_add_line_edt.text()
+        socket.connect(self.rec_add)
+        socket.setsockopt_string(zmq.SUBSCRIBE, "")
+        return socket,context
 
     def _send(self):
         print("Sending the last layer")
@@ -163,7 +106,13 @@ class Simple_Send_Receive(QWidget):
         image = self.viewer.layers[0].data
         print(image.shape)
         serialized_image = pickle.dumps(image)
-        socket.send(serialized_image)
+        # Try 10 times to send - if success then break
+        for i in range(10):
+            socket.send(serialized_image)
+            print(i)
+            if self.is_image_sent:
+                break
+                
         print("Sent")
         socket.close()
         context.term()

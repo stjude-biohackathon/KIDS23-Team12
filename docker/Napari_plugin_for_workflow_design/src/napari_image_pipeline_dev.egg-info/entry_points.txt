@@ -1,0 +1,2 @@
+[napari.manifest]
+napari-image-pipeline-dev = napari_image_pipeline_dev:napari.yaml

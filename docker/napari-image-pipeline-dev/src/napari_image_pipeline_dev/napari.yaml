@@ -5,6 +5,9 @@ contributions:
     - id: napari-image-pipeline-dev.make_qwidget
       python_name: napari_image_pipeline_dev._widget:Simple_Send_Receive
       title: Make simple send and receive data from jupyter hub widget
+    - id: napari-image-pipeline-dev.make_qwidget_sendreceive
+      python_name: napari_image_pipeline_dev._widget:Send_Receive
+      title: Make send and receive data from jupyter hub widget
     - id: napari-image-pipeline-dev.make_qwidget2
       python_name: napari_image_pipeline_dev._widget:Full_Flow_Design
       title: Image processing pipeline builder
@@ -14,5 +17,7 @@ contributions:
       display_name: Simple Send Receive
     - command: napari-image-pipeline-dev.make_qwidget2
       display_name: Full Flow Design
+    - command: napari-image-pipeline-dev.make_qwidget_sendreceive
+      display_name: Send/receive
     
 
